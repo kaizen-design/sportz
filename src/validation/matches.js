@@ -7,10 +7,6 @@ export const MATCH_STATUS = {
   FINISHED: 'finished',
 };
 
-// Helper: ISO 8601 (UTC) date-time with optional fractional seconds, e.g. 2023-01-01T12:00:00Z or 2023-01-01T12:00:00.123Z
-const isoUtcRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
-const isValidIsoString = (s) => typeof s === 'string' && isoUtcRegex.test(s) && !Number.isNaN(Date.parse(s));
-
 // Query schema: optional limit coerced to positive integer, max 100
 export const listMatchesQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional(),
@@ -24,11 +20,11 @@ export const matchIdParamSchema = z.object({
 // Create match schema
 export const createMatchSchema = z
   .object({
-    sport: z.string().min(1, { message: 'sport is required' }).transform((s) => s.trim()),
-    homeTeam: z.string().min(1, { message: 'homeTeam is required' }).transform((s) => s.trim()),
-    awayTeam: z.string().min(1, { message: 'awayTeam is required' }).transform((s) => s.trim()),
-    startTime: z.string().refine(isValidIsoString, { message: 'startTime must be a valid ISO UTC datetime string' }),
-    endTime: z.string().refine(isValidIsoString, { message: 'endTime must be a valid ISO UTC datetime string' }),
+    sport: z.string().trim().min(1, { error: 'sport is required' }),
+    homeTeam: z.string().trim().min(1, { error: 'homeTeam is required' }),
+    awayTeam: z.string().trim().min(1, { error: 'awayTeam is required' }),
+    startTime: z.iso.datetime(),
+    endTime: z.iso.datetime(),
     homeScore: z.coerce.number().int().min(0).optional(),
     awayScore: z.coerce.number().int().min(0).optional(),
   })
