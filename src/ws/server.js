@@ -30,12 +30,12 @@ export function attachWebSocketServer(server) {
         if (decision.isDenied()) {
           const code = decision.reason.isRateLimit() ? 1013 : 1008;
           const reason = decision.reason.isRateLimit() ? 'Rate limit exceeded' : 'Access denied';
-          socket.close(1011, 'Server security error');
+          socket.close(code, reason);
           return;
         }
       } catch (e) {
         console.error('WS connection error', e);
-        socket.close(code, reason);
+        socket.close(1011, 'Server security error');
         return;
       }
     }
